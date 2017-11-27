@@ -110,7 +110,7 @@ bot.on('message', (message)=> {
                     }
                     findWebhook(message, desc);
                 });
-                message.channel.startTyping();
+                message.channel.stopTyping();
             }
             if(commandIs('staff', message)){
                 message.channel.startTyping();
