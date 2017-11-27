@@ -34,6 +34,32 @@ function sendWebhook(msg, desc, hook){
     message.channel.stopTyping();
 }
 
+function embedURL(msg, url, title){
+    msg.channel.send({embed:{
+        title: title,
+        color: 0x1AFF00,
+        fields:[
+            {
+                name: '==============',
+                value: '[Click Here!](' + url + ')',
+                inLine: true
+            }
+        ]
+    }})
+}
+
+function pluck(array){
+    return array.map(function(item) {return item["name"];});
+}
+
+function hasRole(member, role){
+    if(pluck(member.roles).includes(role)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 bot.on('ready', ()=> {
     console.log('Online!');
     bot.user.setGame('on Pixelated Factions');
@@ -97,14 +123,18 @@ bot.on('message', (message)=> {
                 var desc = 'Incorrect Command Usage, Please Do **&help**!'
                 if(args[1] == 'server'){
                     desc = '**Server IP**\nplay.pixelatedfactions.tk';
+                    findWebhook(message, desc);
                 }else if(args[1] == 'website'){
-                    desc = '**Server Website**\nwww.pixelatedfactions.tk';
+                    embedURL(message, 'http://www.pixelatedfactions.tk/', 'Server Website');
                 }else if(args[1] == 'store'){
-                    desc = '**Server Store**\nbuy.pixelatedfactions.tk';
+                    embedURL(message, 'http://buy.pixelatedfactions.tk/', 'Server Store');
                 }else if(args[1] == 'discord'){
                     desc = '**Server Discord**\nhttps://discord.gg/JJNppqG';
+                    findWebhook(message, desc);
+                }else{
+                    findWebhook(message, desc);
                 }
-                findWebhook(message, desc);
+                message.channel.stopTyping();
             }
             if(commandIs('cat', message)){
                 if(args.length == 2){
@@ -191,6 +221,28 @@ bot.on('message', (message)=> {
                         }
                     });
                 }
+            }
+            if(commandIs('userinfo', message)){
+                var desc = '';
+                if(args.length != 2){
+                    desc = 'Incorrect Command Usage, Please Do **&help**!';
+                }else{
+                    if(hasRole(message.member, 'Staff')){
+                        let user = message.mentions.members.first();
+                        if(user){
+                            desc = 'User Info For: **' + user.displayName + '**(**' + user.id + '**)\n';
+                            var userCreated = user.user.createdAt.toString().split(' ');
+                            desc += 'Created At: **' + userCreated[2] + ' ' + userCreated[1] + ' ' + userCreated[3] + '**\n';
+                            var joinedServer = user.joinedAt.toString().split(' ')
+                            desc += 'Joined At: **' + joinedServer[2] + ' ' + joinedServer[1] + ' ' + joinedServer[3] + '**';
+                        }else{
+                            desc = 'User Not Found!';
+                        }
+                    }else{
+                        desc = 'Only Staff Members Can Use This Command!';
+                    }
+                }
+                findWebhook(message, desc);
             }
         }
     }
